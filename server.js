@@ -19,31 +19,35 @@ const startServer = async () => {
     
     app.use(cors({
         origin: function (origin, callback) {
-            // In development, allow all localhost ports
-            if (isDevelopment && (!origin || origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+            // السماح للطلبات بدون origin (مثل Postman)
+            if (!origin) {
                 return callback(null, true);
             }
             
-            // In production, check allowed origins
-            if (process.env.FRONTEND_URL) {
-                const allowedOrigins = process.env.FRONTEND_URL.split(',').map(url => url.trim());
-                if (!origin || allowedOrigins.includes(origin)) {
+            // في الـ Development، السماح لـ localhost
+            if (isDevelopment) {
+                if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
                     return callback(null, true);
                 }
             }
             
-            // Allow requests with no origin in development (like Postman)
-            if (isDevelopment && !origin) {
-                return callback(null, true);
+            // في الـ Production، التحقق من FRONTEND_URL
+            if (process.env.FRONTEND_URL) {
+                const allowedOrigins = process.env.FRONTEND_URL.split(',');
+                if (allowedOrigins.includes(origin)) {
+                    return callback(null, true);
+                }
             }
             
+            // رفض أي origin تاني
             callback(new Error('Not allowed by CORS'));
         },
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
-        credentials: true, // Allow cookies/auth headers
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+        credentials: true
     }));
-    app.use(express.json()); // To accept JSON data in the body
+    
+    app.options('*', cors());
 
     // Define routes
     app.get('/', (req, res) => {
