@@ -19,26 +19,21 @@ const startServer = async () => {
     
 
 
+        
     app.use(
       cors({
-        origin: function (origin, callback) {
-          const allowedOrigins = [
-            "http://localhost:3000",       // وقت التطوير
-            "https://helios-ai-app.vercel.app", // مثال لنشر الفرونت على Vercel
-            "https://your-frontend-domain.com"  // غيّرها لدومينك الفعلي لما ترفعه
-          ];
-    
-          if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-          } else {
-            callback(new Error("CORS blocked"));
-          }
-        },
+        origin: [
+          "http://localhost:3000",
+          "https://helios-ai-app.vercel.app",
+          "https://helios-ai-app-git-main-marus-projects-eebc22da.vercel.app"
+        ],
         methods: ["GET", "POST", "PUT", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true
       })
     );
+    
+    app.use(express.json());
 
     
     // Handle preflight
