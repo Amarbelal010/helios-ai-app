@@ -20,24 +20,22 @@ const startServer = async () => {
 
 
         
-    app.use(
-      cors({
-        origin: [
-          "http://localhost:3000",
-          "https://helios-ai-app.vercel.app",
-          "https://helios-ai-app-git-main-marus-projects-eebc22da.vercel.app"
-        ],
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-        credentials: true
-      })
-    );
+    const corsOptions = {
+      origin: [
+        "http://localhost:3000",
+        "https://helios-ai-app.vercel.app",
+        "https://helios-ai-app-git-main-marus-projects-eebc22da.vercel.app"
+      ],
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      credentials: true,
+      optionsSuccessStatus: 200
+    };
     
+    app.use(cors(corsOptions));
+    app.options('*', cors(corsOptions)); // ✅ الرد على preflight
     app.use(express.json());
 
-    
-    // Handle preflight
-    app.options('*', cors());
 
     // Define routes
     app.get('/', (req, res) => {
