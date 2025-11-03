@@ -17,36 +17,31 @@ const startServer = async () => {
     // In development, allow all localhost origins for flexibility
     const isDevelopment = process.env.NODE_ENV !== 'production';
     
-    app.use(cors({
+
+
+    app.use(
+      cors({
         origin: function (origin, callback) {
-            // السماح للطلبات بدون origin (مثل Postman)
-            if (!origin) {
-                return callback(null, true);
-            }
-            
-            // في الـ Development، السماح لـ localhost
-            if (isDevelopment) {
-                if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-                    return callback(null, true);
-                }
-            }
-            
-            // في الـ Production، التحقق من FRONTEND_URL
-            if (process.env.FRONTEND_URL) {
-                const allowedOrigins = process.env.FRONTEND_URL.split(',');
-                if (allowedOrigins.includes(origin)) {
-                    return callback(null, true);
-                }
-            }
-            
-            // رفض أي origin تاني
-            callback(new Error('Not allowed by CORS'));
-        },
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-        credentials: true
-    }));
+          const allowedOrigins = [
+            "http://localhost:3000",       // وقت التطوير
+            "https://helios-ai-app.vercel.app", // مثال لنشر الفرونت على Vercel
+            "https://your-frontend-domain.com"  // غيّرها لدومينك الفعلي لما ترفعه
+          ];
     
+          if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error("CORS blocked"));
+          }
+        },
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+        credentials: true
+      })
+    );
+
+    
+    // Handle preflight
     app.options('*', cors());
 
     // Define routes
